@@ -14,7 +14,6 @@ KDL::JntArray toKDL(const sensor_msgs::JointState& msg, const std::vector<size_t
 	for(int i = 0; i < indeces.size(); i++)
         {
         	result(i) = msg.position[indeces[i]];
-	//	ROS_INFO("Joint Array Element [%d]: [%s], position: [%f]", i, msg.name[indeces[i]].c_str(), msg.position[indeces[i]]);
   	}
 	
   	return result;
@@ -50,11 +49,9 @@ class Transform
 	KDL::Frame getTF(const std::string& frame_id, const std::string& child_frame_id)
         {
 		tf::StampedTransform tf_pose;
-        //	ROS_INFO("Parent %s", frame_id.c_str());
-        //	ROS_INFO("Child %s", child_frame_id.c_str());
         	try
         	{ 	
-			listener_.waitForTransform(frame_id, child_frame_id, ros::Time(0), ros::Duration(0.01));
+			listener_.waitForTransform(frame_id, child_frame_id, ros::Time(0), ros::Duration(0.1));
                 	listener_.lookupTransform(frame_id, child_frame_id, ros::Time(0), tf_pose);
 		}
         	catch (tf::TransformException& ex)
@@ -74,7 +71,6 @@ class Transform
 
 	void chatterCallback(sensor_msgs::JointState msg)
 	{
-                // TODO: get indeces from somewhere
 		std::vector<size_t> indeces;
 		indeces.push_back(12);
 		indeces.push_back(18);
@@ -84,19 +80,19 @@ class Transform
 		indeces.push_back(20);
 		indeces.push_back(22);
 		indeces.push_back(23);
-	//	ROS_INFO("Nr of chain_ joints in the chatter: %d", chain_.getNrOfJoints());
+
 		KDL::Frame kdl_frame = calculateFK(chain_, toKDL(msg, indeces));
 		KDL::Frame tf_frame = getTF("base_link", "l_gripper_tool_frame");
 
-		if (KDL::Equal(kdl_frame, tf_frame, 0.7))
+		if (KDL::Equal(kdl_frame, tf_frame, 0.1))
 		ROS_INFO("The conversion is correct!");
 		else
 		ROS_INFO("The conversion did not succed!");
 
-	//	int size = msg.name.size();
-	//	ROS_INFO("size: [%d]", size);	
+/*		int size = msg.name.size();
+		ROS_INFO("size: [%d]", size);	
 
-/*		for (int i = 0; i < size; i++)
+		for (int i = 0; i < size; i++)
 		{
 			if (msg.name[i].compare("r_shoulder_pan_joint") == 0);
 			{	
@@ -106,14 +102,6 @@ class Transform
 			}
 		} 
 */		
-
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[18].c_str(), msg.position[18]);
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[19].c_str(), msg.position[19]);
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[17].c_str(), msg.position[17]);
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[21].c_str(), msg.position[21]);
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[20].c_str(), msg.position[20]);
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[22].c_str(), msg.position[22]);
-	//	ROS_INFO("I heard: [%s], position: [%f]", msg.name[23].c_str(), msg.position[23]);
 	}
 
 	
