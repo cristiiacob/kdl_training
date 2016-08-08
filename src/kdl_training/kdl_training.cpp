@@ -40,7 +40,7 @@ class Transform
 {
 
     public:
-        Transform(const ros::NodeHandle& nh): nh_(nh)
+        Transform(const ros::NodeHandle& nh): nh_(nh), base_frame_("base_link"), target_frame_("r_gripper_tool_frame")
         {}
 
         ~Transform() {}
@@ -81,7 +81,7 @@ ROS_INFO("TF: %f, ", tf_pose.stamp_.toSec());
 		indeces.push_back(23);
 
 		KDL::Frame kdl_frame = calculateFK(chain_, toKDL(msg, indeces));
-		KDL::Frame tf_frame = getTF("base_link", "r_gripper_tool_frame");
+		KDL::Frame tf_frame = getTF(base_frame_, target_frame_);
 
 		if (KDL::Equal(kdl_frame, tf_frame, 0.1))
 		ROS_INFO("The conversion is correct!");
@@ -116,7 +116,7 @@ ROS_INFO("TF: %f, ", tf_pose.stamp_.toSec());
                         return;
 		}
 	
-		if (!my_tree.getChain("base_link","r_gripper_tool_frame", chain_))
+		if (!my_tree.getChain(base_frame_, target_frame_, chain_))
 		{
 			ROS_ERROR("Failed to get chain form KDL tree.");
                         throw std::logic_error( "Could not construct the chain" );
@@ -130,9 +130,9 @@ ROS_INFO("TF: %f, ", tf_pose.stamp_.toSec());
     private:
 	ros::NodeHandle nh_;
         tf::TransformListener listener_;
-
 	ros::Subscriber sub_;
-
+	std::string base_frame_;
+	std::string target_frame_;
         KDL::Chain chain_;
 		
 };
