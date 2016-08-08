@@ -49,15 +49,14 @@ class Transform
 	KDL::Frame getTF(const std::string& frame_id, const std::string& child_frame_id)
         {
 		tf::StampedTransform tf_pose;
-        	try
-        	{ 	
-			listener_.waitForTransform(frame_id, child_frame_id, ros::Time(0), ros::Duration(0.1));
-                	listener_.lookupTransform(frame_id, child_frame_id, ros::Time(0), tf_pose);
-		}
-        	catch (tf::TransformException& ex)
-        	{
-                	ROS_ERROR("%s", ex.what());
-        	}
+		ros::Time now = ros::Time::now();
+		if (listener_.waitForTransform(frame_id, child_frame_id, now, ros::Duration(0.1)))
+                	listener_.lookupTransform(frame_id, child_frame_id, now, tf_pose);
+		else
+                	ROS_ERROR("Could not look up transform.");
+
+ROS_INFO("Now: %f", ros::Time::now().toSec());
+ROS_INFO("TF: %f, ", tf_pose.stamp_.toSec());
 		geometry_msgs::TransformStamped tf_msg;
 		tf::transformStampedTFToMsg(tf_pose, tf_msg);
         	KDL::Frame kdl_pose;
@@ -82,7 +81,7 @@ class Transform
 		indeces.push_back(23);
 
 		KDL::Frame kdl_frame = calculateFK(chain_, toKDL(msg, indeces));
-		KDL::Frame tf_frame = getTF("base_link", "l_gripper_tool_frame");
+		KDL::Frame tf_frame = getTF("base_link", "r_gripper_tool_frame");
 
 		if (KDL::Equal(kdl_frame, tf_frame, 0.1))
 		ROS_INFO("The conversion is correct!");
@@ -117,7 +116,7 @@ class Transform
                         return;
 		}
 	
-		if (!my_tree.getChain("base_link","l_gripper_tool_frame", chain_))
+		if (!my_tree.getChain("base_link","r_gripper_tool_frame", chain_))
 		{
 			ROS_ERROR("Failed to get chain form KDL tree.");
                         throw std::logic_error( "Could not construct the chain" );
