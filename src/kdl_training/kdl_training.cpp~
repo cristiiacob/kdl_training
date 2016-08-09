@@ -7,7 +7,9 @@
 #include <geometry_msgs/Transform.h>
 #include <kdl_conversions/kdl_msg.h>
 
-KDL::JntArray toKDL(const sensor_msgs::JointState& msg, const std::vector<size_t>& indeces)
+// TODO: separate this in hpp-file and cpp-file
+// TODO: afterwards, write unit-tests for this
+KDL::JntArray toKDL(const sensor_msgs::JointState::ConstPtr& msg, const std::vector<size_t>& indeces)
 {
 	KDL::JntArray result = KDL::JntArray(indeces.size());
   	
@@ -29,7 +31,7 @@ KDL::Frame calculateFK(const KDL::Chain& chain, const KDL::JntArray& joints)
 	
         KDL::Frame result;
 	my_solver.JntToCart(joints, result);
-	ROS_INFO("FK:");
+	ROS_INFO("FK:"); // TODO: replace this with ROS_DEBUG
      	using KDL::operator<<;
 	std::cout << result << std::endl;
         return result;
@@ -40,24 +42,23 @@ class Transform
 {
 
     public:
-        Transform(const ros::NodeHandle& nh): nh_(nh)
+        Transform(const ros::NodeHandle& nh): nh_(nh), base_frame_("base_link"), target_frame_("r_gripper_tool_frame"), once_(true)
         {}
 
         ~Transform() {}
 	
-
 	KDL::Frame getTF(const std::string& frame_id, const std::string& child_frame_id)
         {
 		tf::StampedTransform tf_pose;
-        	try
-        	{ 	
-			listener_.waitForTransform(frame_id, child_frame_id, ros::Time(0), ros::Duration(0.1));
-                	listener_.lookupTransform(frame_id, child_frame_id, ros::Time(0), tf_pose);
-		}
-        	catch (tf::TransformException& ex)
-        	{
-                	ROS_ERROR("%s", ex.what());
-        	}
+		ros::Time now = ros::Time::now();
+ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
+		if (listener_.waitForTransform(frame_id, child_frame_id, now, ros::Duration(0.1)))
+                	listener_.lookupTransform(frame_id, child_frame_id, now, tf_pose);
+		else
+                	ROS_ERROR("Could not look up transform.");
+
+		ROS_INFO("Now: %f", now.toSec());
+		ROS_INFO("TF: %f, ", tf_pose.stamp_.toSec());
 		geometry_msgs::TransformStamped tf_msg;
 		tf::transformStampedTFToMsg(tf_pose, tf_msg);
         	KDL::Frame kdl_pose;
@@ -69,46 +70,43 @@ class Transform
 		return kdl_pose;
         }
 
-	void chatterCallback(sensor_msgs::JointState msg)
+	void chatterCallback(const sensor_msgs::JointState::ConstPtr& msg)
 	{
-		std::vector<size_t> indeces;
-		indeces.push_back(12);
-		indeces.push_back(18);
-		indeces.push_back(19);
-		indeces.push_back(17);
-		indeces.push_back(21);
-		indeces.push_back(20);
-		indeces.push_back(22);
-		indeces.push_back(23);
 
-		KDL::Frame kdl_frame = calculateFK(chain_, toKDL(msg, indeces));
-		KDL::Frame tf_frame = getTF("base_link", "l_gripper_tool_frame");
+	if(once_)
+	{
+// TODO: make this an external function
+		for(int i=0; i<msg->name.size(); i++)
+		{
+			joint_index_map_[msg->name[i]] = i;
+		}	
+
+		for(size_t i=0; i<joint_names_.size(); ++i)
+		{
+  			std::map<std::string,size_t>::const_iterator it = joint_index_map_.find(joint_names_[i]);
+ 		        if (it != joint_index_map_.end())
+   				joint_indeces_.push_back(it->second);
+  			else
+    				ROS_ERROR("Could not find joint '%s'", joint_names_[i].c_str());
+		}
+
+		once_ = false;
+	}
+
+		KDL::Frame kdl_frame = calculateFK(chain_, toKDL(msg, joint_indeces_));
+		KDL::Frame tf_frame = getTF(base_frame_, target_frame_);
 
 		if (KDL::Equal(kdl_frame, tf_frame, 0.1))
 		ROS_INFO("The conversion is correct!");
 		else
 		ROS_INFO("The conversion did not succed!");
-
-/*		int size = msg.name.size();
-		ROS_INFO("size: [%d]", size);	
-
-		for (int i = 0; i < size; i++)
-		{
-			if (msg.name[i].compare("r_shoulder_pan_joint") == 0);
-			{	
-				ROS_INFO("i: [%d]", i);	
-				ROS_INFO("I heard: [%s]", msg.name[i].c_str());	
-				//break;
-			}
-		} 
-*/		
 	}
-
 	
 	void start()
 	{			
                 std::string robot_desc;
 		nh_.param("robot_description", robot_desc, std::string());
+// TODO: make this an external function
 		KDL::Tree my_tree;
 		if (!kdl_parser::treeFromString(robot_desc, my_tree))
 		{
@@ -116,25 +114,43 @@ class Transform
 			throw std::logic_error( "Could not construct the tree" );
                         return;
 		}
-	
-		if (!my_tree.getChain("base_link","l_gripper_tool_frame", chain_))
+		
+		if (!my_tree.getChain(base_frame_, target_frame_, chain_))
 		{
 			ROS_ERROR("Failed to get chain form KDL tree.");
                         throw std::logic_error( "Could not construct the chain" );
                         return;
 		}
-		ROS_INFO("%d",chain_.getNrOfJoints());
+//TODO: make this an external function
+		ROS_INFO("Nr of joints: %d",chain_.getNrOfJoints());
+		ROS_INFO("Total nr of segments: %d",chain_.getNrOfSegments());
+		for(size_t i = 0; i < chain_.getNrOfSegments(); i++)
+		{	
+			KDL::Segment segment = chain_.getSegment(i);
 
+		        if(segment.getJoint().getTypeName().compare("None"))
+			{
+				ROS_INFO("%s",segment.getJoint().getName().c_str());
+				joint_names_.push_back(segment.getJoint().getName());	
+			}
+			
+			
+		}	
+		
 	 	sub_ = nh_.subscribe("joint_states", 1, &Transform::chatterCallback, this);
     	}	
 	
     private:
 	ros::NodeHandle nh_;
         tf::TransformListener listener_;
-
 	ros::Subscriber sub_;
-
-        KDL::Chain chain_;
+	std::string base_frame_;
+	std::string target_frame_;
+        KDL::Chain chain_; // TODO: remove this member, and replace it by the solver
+	std::vector<size_t> joint_indeces_;
+	std::vector<std::string> joint_names_;
+	std::map<std::string, size_t> joint_index_map_;
+	bool once_;
 		
 };
 
