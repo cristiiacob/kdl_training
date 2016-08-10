@@ -6,6 +6,7 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Transform.h>
 #include <kdl_conversions/kdl_msg.h>
+#include <ros/console.h>
 
 // TODO: separate this in hpp-file and cpp-file
 // TODO: afterwards, write unit-tests for this
@@ -31,9 +32,10 @@ KDL::Frame calculateFK(const KDL::Chain& chain, const KDL::JntArray& joints)
 	
         KDL::Frame result;
 	my_solver.JntToCart(joints, result);
-	ROS_INFO("FK:"); // TODO: replace this with ROS_DEBUG
+	
      	using KDL::operator<<;
-	std::cout << result << std::endl;
+//	std::cout << result << std::endl;
+        ROS_DEBUG_STREAM("FK: " << std::endl << result << std::endl);
         return result;
 }
 
@@ -51,7 +53,7 @@ class Transform
         {
 		tf::StampedTransform tf_pose;
 		ros::Time now = ros::Time::now();
-ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
+
 		if (listener_.waitForTransform(frame_id, child_frame_id, now, ros::Duration(0.1)))
                 	listener_.lookupTransform(frame_id, child_frame_id, now, tf_pose);
 		else
@@ -63,19 +65,15 @@ ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
 		tf::transformStampedTFToMsg(tf_pose, tf_msg);
         	KDL::Frame kdl_pose;
 		tf::transformMsgToKDL(tf_msg.transform, kdl_pose);
-		ROS_INFO("TF:");
          	using KDL::operator<<;
-	        std::cout << kdl_pose << std::endl;
+//	        std::cout << kdl_pose << std::endl;
+		ROS_DEBUG_STREAM("TF: " << std::endl << kdl_pose << std::endl);
 
 		return kdl_pose;
         }
 
-	void chatterCallback(const sensor_msgs::JointState::ConstPtr& msg)
+	void createIndexMap(const sensor_msgs::JointState::ConstPtr& msg)
 	{
-
-	if(once_)
-	{
-// TODO: make this an external function
 		for(int i=0; i<msg->name.size(); i++)
 		{
 			joint_index_map_[msg->name[i]] = i;
@@ -88,8 +86,15 @@ ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
    				joint_indeces_.push_back(it->second);
   			else
     				ROS_ERROR("Could not find joint '%s'", joint_names_[i].c_str());
-		}
+		}		
+	}
 
+	void chatterCallback(const sensor_msgs::JointState::ConstPtr& msg)
+	{
+
+	if(once_)
+	{
+		createIndexMap(msg);
 		once_ = false;
 	}
 
@@ -101,13 +106,11 @@ ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
 		else
 		ROS_INFO("The conversion did not succed!");
 	}
-	
-	void start()
-	{			
-                std::string robot_desc;
-		nh_.param("robot_description", robot_desc, std::string());
-// TODO: make this an external function
+
+	void createChain(const std::string& robot_desc)
+	{
 		KDL::Tree my_tree;
+		
 		if (!kdl_parser::treeFromString(robot_desc, my_tree))
 		{
 			ROS_ERROR("Failed to construct kdl tree");
@@ -120,10 +123,14 @@ ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
 			ROS_ERROR("Failed to get chain form KDL tree.");
                         throw std::logic_error( "Could not construct the chain" );
                         return;
-		}
-//TODO: make this an external function
+		}	
+	}
+	
+	void getJointNames()
+	{
 		ROS_INFO("Nr of joints: %d",chain_.getNrOfJoints());
 		ROS_INFO("Total nr of segments: %d",chain_.getNrOfSegments());
+		
 		for(size_t i = 0; i < chain_.getNrOfSegments(); i++)
 		{	
 			KDL::Segment segment = chain_.getSegment(i);
@@ -132,11 +139,16 @@ ROS_INFO("'%s' --> '%s'", frame_id.c_str(), child_frame_id.c_str());
 			{
 				ROS_INFO("%s",segment.getJoint().getName().c_str());
 				joint_names_.push_back(segment.getJoint().getName());	
-			}
-			
-			
+			}				
 		}	
-		
+	}
+	
+	void start()
+	{			
+                std::string robot_desc;
+		nh_.param("robot_description", robot_desc, std::string());
+		createChain(robot_desc);
+		getJointNames();	
 	 	sub_ = nh_.subscribe("joint_states", 1, &Transform::chatterCallback, this);
     	}	
 	

@@ -220,3 +220,6 @@ include_directories(
 
 add_executable(kdl_training src/${PROJECT_NAME}/kdl_training.cpp)
 target_link_libraries(kdl_training ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_executable(debug_test src/${PROJECT_NAME}/debug_test.cpp)
+target_link_libraries(debug_test ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})

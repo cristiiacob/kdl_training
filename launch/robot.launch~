@@ -1,0 +1,4 @@
+<launch>
+	<include file="$(find pr2_description)/robots/upload_pr2.launch"/>
+	<node name="kdl_parser" type="kdl_training" pkg="kdl_training" output="screen"/>
+</launch>
