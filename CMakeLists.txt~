@@ -147,9 +147,15 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(kdl_training
+# add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/kdl_training.cpp
 # )
+
+add_definitions(-std=c++11)
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+
+add_executable(kdl_training src/${PROJECT_NAME}/kdl_training.cpp)
+target_link_libraries(kdl_training ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -205,21 +211,23 @@ include_directories(
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
+
 #############
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_kdl_training.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(kdl_training src/${PROJECT_NAME}/kdl_training.cpp)
-target_link_libraries(kdl_training ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
-add_executable(debug_test src/${PROJECT_NAME}/debug_test.cpp)
-target_link_libraries(debug_test ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+set(TEST_SRCS
+  test/main.cpp
+  test/${PROJECT_NAME}/kdl_functions.cpp 
+)
+
+catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+if(TARGET ${PROJECT_NAME}-test)
+  target_link_libraries(${PROJECT_NAME}-test ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+endif()

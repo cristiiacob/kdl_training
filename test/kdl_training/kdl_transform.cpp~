@@ -1,0 +1,23 @@
+#include <gtest/gtest.h>
+#include <kdl_training/kdl_transform.hpp>
+
+class TransformTest : public ::testing::Test
+{
+	protected:
+	    virtual void SetUp()
+	    {
+	      // initialize your global testing variables here
+	    }
+
+	    virtual void TearDown()
+	    {
+	      // destroy your global testing variables here
+	    }
+
+	    // define your global testing variables here
+};
+
+TEST_F(TransformTest, RunTest)
+{	
+	kdl_training::Transform my_transform;
+}
