@@ -9,6 +9,7 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Transform.h>
 #include <kdl_training/kdl_functions.hpp>
+#include <kdl/frames_io.hpp>
 #include <memory>
 
 namespace kdl_training
@@ -45,8 +46,6 @@ namespace kdl_training
 			return kdl_pose;
 		}
 
-
-
 		void chatterCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		{
 
@@ -57,6 +56,10 @@ namespace kdl_training
 		}
 
 			KDL::Frame kdl_frame = calculateFK(fk_solver_, toKDL(*msg, joint_indeces_));
+			using KDL::operator<<;
+		//	std::cout << result << std::endl;
+			ROS_DEBUG_STREAM("FK: " << std::endl << kdl_frame << std::endl);
+			
 			KDL::Frame tf_frame = getTF(base_frame_, target_frame_);
 
 			if (KDL::Equal(kdl_frame, tf_frame, 0.1))
@@ -70,11 +73,11 @@ namespace kdl_training
 			KDL::Tree my_tree;
 		
 			if (!kdl_parser::treeFromString(robot_desc, my_tree))
-		        	throw std::logic_error( "Could not construct the tree" );
+		        	throw std::runtime_error( "Could not construct the tree" );
 
 
 			if (!my_tree.getChain(base_frame_, target_frame_, chain_))
-		                throw std::logic_error( "Could not construct the chian" );
+		                throw std::runtime_error( "Could not construct the chian" );
 		}
 	
 		void start()
@@ -94,11 +97,10 @@ namespace kdl_training
 		std::string base_frame_;
 		std::string target_frame_;
 	        std::shared_ptr<KDL::ChainFkSolverPos_recursive> fk_solver_;
-		KDL::Chain chain_; // TODO: remove this member, and replace it by the solver
+		KDL::Chain chain_; 
 		std::vector<size_t> joint_indeces_;
 		std::vector<std::string> joint_names_;
-		bool once_;
-		
+		bool once_;		
 	};
 }
 

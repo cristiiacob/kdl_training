@@ -2,7 +2,6 @@
 #include <kdl_training/kdl_functions.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 #include <urdf/model.h>
-#include <ros/ros.h>
 
 using namespace kdl_training;
 

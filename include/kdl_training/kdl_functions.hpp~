@@ -5,14 +5,12 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/frames_io.hpp>
 
 namespace kdl_training
 {
-	// TODO: separate this in hpp-file and cpp-file
-	// TODO: afterwards, write unit-tests for this
 	// TODO: Remove ROS_* (ros agnostic!)
 	// TODO: Add better exception handling
+
 	inline KDL::JntArray toKDL(const sensor_msgs::JointState& msg, const std::vector<size_t>& indeces)
 	{
 		KDL::JntArray result(indeces.size());
@@ -31,18 +29,12 @@ namespace kdl_training
 	{	
 		KDL::Frame result;
 		fk_solver->JntToCart(joints, result);
-	
-	     	using KDL::operator<<;
-	//	std::cout << result << std::endl;
-	//	ROS_DEBUG_STREAM("FK: " << std::endl << result << std::endl);
+		
 		return result;
 	}
 
         inline std::vector<std::string> getJointNames(const KDL::Chain& chain)
 		{
-	//		ROS_INFO("Nr of joints: %d",chain.getNrOfJoints());
-	//		ROS_INFO("Total nr of segments: %d",chain.getNrOfSegments());
-		
 			std::vector<std::string> joint_names;
 			for(size_t i = 0; i < chain.getNrOfSegments(); i++)
 			{	
@@ -50,7 +42,6 @@ namespace kdl_training
 
 				if(segment.getJoint().getTypeName().compare("None"))
 				{
-				//	ROS_INFO("%s",segment.getJoint().getName().c_str());
 					joint_names.push_back(segment.getJoint().getName());	
 				}				
 			}	
@@ -76,12 +67,10 @@ namespace kdl_training
 	 		        if (it != joint_index_map.end())
 	   				joint_indeces.push_back(it->second);
 	  			else
-	    			//	ROS_ERROR("Could not find joint '%s'", joint_names[i].c_str());
-					throw std::runtime_error("Could not find joint '%s'", joint_names[i].c_str());
+					throw std::runtime_error("Could not find joint");
 			}		
 			return joint_indeces;
 		}
-
 }
 
 #endif // KDL_TRAINING_KDL_FUNCTIONS_HPP
