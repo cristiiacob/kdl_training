@@ -224,10 +224,13 @@ target_link_libraries(kdl_training ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 set(TEST_SRCS
   test/main.cpp
-#  test/${PROJECT_NAME}/kdl_functions.cpp 
+  test/${PROJECT_NAME}/kdl_functions.cpp 
 )
 
-catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS}
+		 test/main.cpp
+		 test/kdl_training/kdl_functions.cpp
+		 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_data)
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 endif()

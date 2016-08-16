@@ -11,39 +11,37 @@ namespace kdl_training
 {
 	// TODO: separate this in hpp-file and cpp-file
 	// TODO: afterwards, write unit-tests for this
+	// TODO: Remove ROS_* (ros agnostic!)
+	// TODO: Add better exception handling
 	inline KDL::JntArray toKDL(const sensor_msgs::JointState& msg, const std::vector<size_t>& indeces)
 	{
-		KDL::JntArray result = KDL::JntArray(indeces.size());
+		KDL::JntArray result(indeces.size());
 	  	
 		for(int i = 0; i < indeces.size(); i++)
 		{
+			if (indeces[i] > msg.position.size())
+  				throw std::runtime_error("Received index bigger than size of message.");
 			result(i) = msg.position[indeces[i]];
 	  	}
 	
 	  	return result;
 	}
 
-	inline KDL::Frame calculateFK(const KDL::Chain& chain, const KDL::JntArray& joints)
+	inline KDL::Frame calculateFK(const std::shared_ptr<KDL::ChainFkSolverPos_recursive>& fk_solver, const KDL::JntArray& joints)
 	{	
-		KDL::ChainFkSolverPos_recursive my_solver(chain);
-	       	if(joints.rows() != chain.getNrOfJoints())
-		{	
-			throw std::logic_error( "Could not construct the tree" );
-		}
-	
 		KDL::Frame result;
-		my_solver.JntToCart(joints, result);
+		fk_solver->JntToCart(joints, result);
 	
 	     	using KDL::operator<<;
 	//	std::cout << result << std::endl;
-		ROS_DEBUG_STREAM("FK: " << std::endl << result << std::endl);
+	//	ROS_DEBUG_STREAM("FK: " << std::endl << result << std::endl);
 		return result;
 	}
 
         inline std::vector<std::string> getJointNames(const KDL::Chain& chain)
 		{
-			ROS_INFO("Nr of joints: %d",chain.getNrOfJoints());
-			ROS_INFO("Total nr of segments: %d",chain.getNrOfSegments());
+	//		ROS_INFO("Nr of joints: %d",chain.getNrOfJoints());
+	//		ROS_INFO("Total nr of segments: %d",chain.getNrOfSegments());
 		
 			std::vector<std::string> joint_names;
 			for(size_t i = 0; i < chain.getNrOfSegments(); i++)
@@ -52,7 +50,7 @@ namespace kdl_training
 
 				if(segment.getJoint().getTypeName().compare("None"))
 				{
-					ROS_INFO("%s",segment.getJoint().getName().c_str());
+				//	ROS_INFO("%s",segment.getJoint().getName().c_str());
 					joint_names.push_back(segment.getJoint().getName());	
 				}				
 			}	
@@ -78,7 +76,8 @@ namespace kdl_training
 	 		        if (it != joint_index_map.end())
 	   				joint_indeces.push_back(it->second);
 	  			else
-	    				ROS_ERROR("Could not find joint '%s'", joint_names[i].c_str());
+	    			//	ROS_ERROR("Could not find joint '%s'", joint_names[i].c_str());
+					throw std::runtime_error("Could not find joint ");
 			}		
 			return joint_indeces;
 		}

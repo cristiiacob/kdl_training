@@ -56,7 +56,7 @@ namespace kdl_training
 			once_ = false;
 		}
 
-			KDL::Frame kdl_frame = calculateFK(chain_, toKDL(*msg, joint_indeces_));
+			KDL::Frame kdl_frame = calculateFK(fk_solver_, toKDL(*msg, joint_indeces_));
 			KDL::Frame tf_frame = getTF(base_frame_, target_frame_);
 
 			if (KDL::Equal(kdl_frame, tf_frame, 0.1))
@@ -82,7 +82,7 @@ namespace kdl_training
 		        std::string robot_desc;
 			nh_.param("robot_description", robot_desc, std::string());
 			createChain(robot_desc);
-		//	fk_solver_ = std::make_shared<KDL::ChainFkSolverPos_recursive>(new KDL::ChainFkSolverPos_recursive(chain_));	
+			fk_solver_ = std::make_shared<KDL::ChainFkSolverPos_recursive>(KDL::ChainFkSolverPos_recursive(chain_));	
 			joint_names_ = getJointNames(chain_);	
 		 	sub_ = nh_.subscribe("joint_states", 1, &Transform::chatterCallback, this);
 	    	}	
@@ -93,7 +93,7 @@ namespace kdl_training
 		ros::Subscriber sub_;
 		std::string base_frame_;
 		std::string target_frame_;
-	//        std::shared_ptr<KDL::ChainFkSolverPos_recursive> fk_solver_;
+	        std::shared_ptr<KDL::ChainFkSolverPos_recursive> fk_solver_;
 		KDL::Chain chain_; // TODO: remove this member, and replace it by the solver
 		std::vector<size_t> joint_indeces_;
 		std::vector<std::string> joint_names_;
