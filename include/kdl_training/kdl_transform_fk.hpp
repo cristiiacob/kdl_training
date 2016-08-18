@@ -10,17 +10,17 @@
 #include <geometry_msgs/Transform.h>
 #include <kdl_training/kdl_functions.hpp>
 #include <memory>
-
+	
 namespace kdl_training
 {
-	class Transform
+	class Transform_fk
 	{
 
 	    public:
-		Transform(const ros::NodeHandle& nh): nh_(nh), base_frame_("base_link"), target_frame_("r_gripper_tool_frame"), once_(true)
+		Transform_fk(const ros::NodeHandle& nh): nh_(nh), base_frame_("base_link"), target_frame_("r_gripper_tool_frame"), once_(true)
 		{}
 
-		~Transform() {}
+		~Transform_fk() {}
 	
 		KDL::Frame getTF(const std::string& frame_id, const std::string& child_frame_id)
 		{
@@ -48,15 +48,15 @@ namespace kdl_training
 		void chatterCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		{
 
-		if(once_)
-		{
-			joint_indeces_ = createJointIndices(createIndexMap(msg, joint_names_), joint_names_);
-			once_ = false;
-		}
+			if(once_)
+			{
+				joint_indeces_ = createJointIndices(createIndexMap(msg, joint_names_), joint_names_);
+				once_ = false;
+			}
 
 			KDL::Frame kdl_frame = calculateFK(fk_solver_, toKDL(*msg, joint_indeces_));
 			using KDL::operator<<;
-		//	std::cout << result << std::endl;
+		//	std::cout << kdl_frame << std::endl;
 			ROS_DEBUG_STREAM("FK: " << std::endl << kdl_frame << std::endl);
 			
 			KDL::Frame tf_frame = getTF(base_frame_, target_frame_);
@@ -76,7 +76,7 @@ namespace kdl_training
 
 
 			if (!my_tree.getChain(base_frame_, target_frame_, chain_))
-		                throw std::runtime_error( "Could not construct the chian" );
+		                throw std::runtime_error( "Could not construct the chain" );
 		}
 	
 		void start()
@@ -86,7 +86,7 @@ namespace kdl_training
 			createChain(robot_desc);
 			fk_solver_ = std::make_shared<KDL::ChainFkSolverPos_recursive>(KDL::ChainFkSolverPos_recursive(chain_));	
 			joint_names_ = getJointNames(chain_);	
-		 	sub_ = nh_.subscribe("joint_states", 1, &Transform::chatterCallback, this);
+		 	sub_ = nh_.subscribe("joint_states", 1, &Transform_fk::chatterCallback, this);
 	    	}	
 	
 	    private:

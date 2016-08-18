@@ -5,17 +5,17 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainiksolverpos_lma.hpp>
 
 namespace kdl_training
 {
-	// TODO: Remove ROS_* (ros agnostic!)
 	// TODO: Add better exception handling
 
 	inline KDL::JntArray toKDL(const sensor_msgs::JointState& msg, const std::vector<size_t>& indeces)
 	{
 		KDL::JntArray result(indeces.size());
 	  	
-		for(int i = 0; i < indeces.size(); i++)
+		for(int i = 0; i < indeces.size(); ++i)
 		{
 			if (indeces[i] > msg.position.size())
   				throw std::runtime_error("Received index bigger than size of message.");
@@ -33,10 +33,18 @@ namespace kdl_training
 		return result;
 	}
 
+	inline KDL::JntArray calculateIK(const std::shared_ptr<KDL::ChainIkSolverPos_LMA>& ik_solver, const KDL::Frame& goal_frame, const KDL::JntArray& joints_in)
+	{	
+		KDL::JntArray joints_out;
+		ik_solver->CartToJnt(joints_in, goal_frame, joints_out);
+		
+		return joints_out;
+	}
+
         inline std::vector<std::string> getJointNames(const KDL::Chain& chain)
 		{
 			std::vector<std::string> joint_names;
-			for(size_t i = 0; i < chain.getNrOfSegments(); i++)
+			for(size_t i = 0; i < chain.getNrOfSegments(); ++i)
 			{	
 				KDL::Segment segment = chain.getSegment(i);
 
@@ -51,7 +59,7 @@ namespace kdl_training
 	inline std::map<std::string, size_t> createIndexMap(const sensor_msgs::JointState::ConstPtr& msg, const std::vector<std::string>& joint_names)
 		{
 			std::map<std::string, size_t> joint_index_map;
-			for(int i=0; i<msg->name.size(); i++)
+			for(int i=0; i<msg->name.size(); ++i)
 			{
 				joint_index_map[msg->name[i]] = i;
 			}

@@ -1,10 +1,10 @@
-#include <kdl_training/kdl_transform.hpp>
+#include <kdl_training/kdl_transform_fk.hpp>
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv,"kdl_parser");
+	ros::init(argc, argv,"kdl_fk");
     	ros::NodeHandle nh;
-	kdl_training::Transform my_transform(nh);
+	kdl_training::Transform_fk my_transform(nh);
 
 	try
         {

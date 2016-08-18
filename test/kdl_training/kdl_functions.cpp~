@@ -40,6 +40,25 @@ class TransformTest : public ::testing::Test
 			if(segment.getJoint().getTypeName().compare("None"))	
 				joint_names.push_back(segment.getJoint().getName());	
 		}
+		
+		translation.Zero();
+		x_rot.Zero();
+		y_rot.Zero();
+		z_rot.Zero();
+		rotation.UnitX(x_rot);
+		rotation.UnitX(y_rot);
+		rotation.UnitX(z_rot);
+		goal_frame.M = rotation;
+		goal_frame.p = translation;
+		ik_solver = std::make_shared<KDL::ChainIkSolverPos_LMA>(KDL::ChainIkSolverPos_LMA(chain));	
+		q_in.resize(8);
+		q_out.resize(8);
+
+		for(size_t i = 0; i < 8; ++i)
+		{
+			q_in(i) = 0.0;
+			q_test(i) = 0.0;
+		}
 	    }
 
 	    virtual void TearDown()
@@ -53,6 +72,17 @@ class TransformTest : public ::testing::Test
 	        urdf::Model urdf;
 		KDL::Tree tree;
 		KDL::Chain chain;
+
+		KDL::JntArray q_out;
+		KDL::JntArray q_test;
+		KDL::JntArray q_in;
+		KDL::Frame goal_frame;
+		KDL::Vector translation;
+		KDL::Vector x_rot;
+		KDL::Vector y_rot;
+		KDL::Vector z_rot;
+		KDL::Rotation rotation;
+		std::shared_ptr<KDL::ChainIkSolverPos_LMA> ik_solver;
 };
 
 TEST_F(TransformTest, vectorTest)
@@ -63,6 +93,16 @@ TEST_F(TransformTest, vectorTest)
 
 TEST_F(TransformTest, nameTest)
 {	
-	for (size_t i = 0; i < 8; i++)
+	for (size_t i = 0; i < 8; ++i)
 		ASSERT_STREQ(msg.name[2].c_str(), joint_names[2].c_str());	
 }	
+
+TEST_F(TransformTest, ikTest)
+{	
+	q_out = calculateIK(ik_solver, goal_frame, q_in);
+	for (size_t i = 0; i < 8; ++i)
+		ASSERT_EQ(q_test(i), q_out(i));	
+}	
+
+
+

@@ -154,8 +154,8 @@ include_directories(
 add_definitions(-std=c++11)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
-add_executable(kdl_training src/${PROJECT_NAME}/kdl_training.cpp)
-target_link_libraries(kdl_training ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+add_executable(kdl_training_fk src/${PROJECT_NAME}/kdl_training_fk.cpp)
+target_link_libraries(kdl_training_fk ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
