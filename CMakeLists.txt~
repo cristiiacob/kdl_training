@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   pr2_mechanism_model
   sensor_msgs
   kdl_conversions
+  kdl_msgs
 )
 
 find_package(Boost REQUIRED )
@@ -156,6 +157,15 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 add_executable(kdl_training_fk src/${PROJECT_NAME}/kdl_training_fk.cpp)
 target_link_libraries(kdl_training_fk ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_executable(kdl_training_ik src/${PROJECT_NAME}/kdl_training_ik.cpp)
+target_link_libraries(kdl_training_ik ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_executable(kdl_keyboard src/${PROJECT_NAME}/kdl_keyboard.cpp)
+target_link_libraries(kdl_keyboard ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_executable(r_arm_controller src/${PROJECT_NAME}/r_arm_controller.cpp)
+target_link_libraries(r_arm_controller ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

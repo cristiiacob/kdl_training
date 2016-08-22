@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 
 	try
         {
-  //   	   	my_transform.start();
+     	   	my_transform.start();
         }
         catch (const std::exception& ex)
         {
