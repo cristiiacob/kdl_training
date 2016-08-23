@@ -89,7 +89,7 @@ namespace kdl_training
 			}
 					
 		 	sub_goal_ = nh_.subscribe("/tf_goal", 1, &Transform_ik::goalCallback, this);	
-			pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/goal_joints_pos", 1);
+			pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/goal_joint_pos", 1);
         		//timer_ = nh_.createTimer(period, &Transform_ik::goalPublishCallback, this);
 	    	}
 	

@@ -13,14 +13,7 @@ namespace kdl_training
 	typedef actionlib::SimpleActionClient<pr2_controllers_msgs::SingleJointPositionAction> TorsoClient;
 
 	class RobotRArm
-	{
-	   private:
-		TrajClient *traj_client_;
-		TorsoClient *torso_client_;
-		ros::NodeHandle nh_;
-		ros::Subscriber sub_goal_;
-		std::vector<float> goal_points_;
-		
+	{	
 	   public:
 		// Initialize the action client and wait for the action server to come up
 		RobotRArm(const ros::NodeHandle& nh): nh_(nh)
@@ -28,11 +21,12 @@ namespace kdl_training
 			// tell the action client that we want to spin a thread by default
 			traj_client_ = new TrajClient("r_arm_controller/joint_trajectory_action", true);
 			torso_client_ = new TorsoClient("torso_controller/position_joint_action", true);
+			goal_points_.resize(8);
 		
 			// wait for action server to come up
 			while (!traj_client_->waitForServer(ros::Duration(1.0)) && !torso_client_->waitForServer(ros::Duration(1.0)))
 			{
-				ROS_INFO("Waiting for the action serer to come up");
+				ROS_INFO("Waiting for the action server to come up");
 			}
 		}
 	
@@ -42,16 +36,26 @@ namespace kdl_training
 		}
 	
 		void callback(const std_msgs::Float32MultiArray& msg)
-		{
+		{	
+			std::vector<float> test_vector;
 			for (size_t  i = 0; i < 8; ++i)
-				goal_points_.push_back(msg.data[i]); 	
+			{
+				test_vector.push_back(msg.data[i]); 	
+				ROS_INFO("%f", msg.data[i]);
+			}
+			if(test_vector != goal_points_)
+			{	
+				for (size_t  i = 0; i < 8; ++i)
+				{
+					goal_points_[i] = msg.data[i]; 	
+					ROS_INFO("%f", msg.data[i]);
+				}
+				startTrajectory(armExtensionTrajectory(), torsoLift());
+			}
 		}
 
 		void startTrajectory(pr2_controllers_msgs::JointTrajectoryGoal arm_goal, pr2_controllers_msgs::SingleJointPositionGoal torso_goal)
-		{	
-			while(goal_points_.empty())
-				ros::Duration(1).sleep();
-			
+		{
 			// When to start the trajectory: 'duration' from now
 			//arm_goal.trajectory.header.stamp = ros::Time::now() + ros::Duration(1.0);
 			torso_client_->sendGoal(torso_goal);
@@ -61,8 +65,14 @@ namespace kdl_training
 		
 		pr2_controllers_msgs::SingleJointPositionGoal torsoLift()
 		{
+		/*	while(goal_points_.empty())
+			{
+				ros::Duration(1).sleep();
+				ROS_INFO("Waiting for msg. (torso)");
+			}				
+		*/
 			pr2_controllers_msgs::SingleJointPositionGoal goal;
-			goal.position = goal_points_[0];
+			//goal.position = goal_points_[0];
 			goal.position = 0.1;
 			goal.min_duration = ros::Duration(1.0);	
 			goal.max_velocity = 1.0;
@@ -83,6 +93,12 @@ namespace kdl_training
 			goal.trajectory.joint_names.push_back("r_wrist_roll_joint");
 			goal.trajectory.points.resize(1);
 
+		/*	while(goal_points_.empty())
+			{
+				ros::Duration(1).sleep();
+				ROS_INFO("Waiting for msg. (arm)");
+			}				
+		*/
 			goal.trajectory.points[0].positions.resize(7);
 			for (size_t i = 0; i < 7; ++i)
 				goal.trajectory.points[0].positions[i] = goal_points_[i+1];
@@ -105,6 +121,26 @@ namespace kdl_training
 		{
 			return traj_client_->getState();
 		}
+
+		void start()
+		{
+			sub_goal_ = nh_.subscribe("/goal_joint_pos", 1, &RobotRArm::callback, this);
+
+		//	while(goal_points_.empty())
+		//	{
+		//		ros::Duration(1).sleep();
+		//		ROS_INFO("Waiting for msg");
+		//	}		
+			
+		}
+
+	    private:
+		TrajClient *traj_client_;
+		TorsoClient *torso_client_;
+		ros::NodeHandle nh_;
+		ros::Subscriber sub_goal_;
+		std::vector<float> goal_points_;
+		ros::Subscriber sub_;
 	};
 }
 
