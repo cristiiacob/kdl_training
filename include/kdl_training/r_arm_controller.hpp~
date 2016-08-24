@@ -101,8 +101,8 @@ namespace kdl_training
 		*/
 			goal.trajectory.points[0].positions.resize(7);
 			for (size_t i = 0; i < 7; ++i)
-				goal.trajectory.points[0].positions[i] = goal_points_[i+1];
-				//goal.trajectory.points[0].positions[i] = 0.3;
+				//goal.trajectory.points[0].positions[i] = goal_points_[i+1];
+				goal.trajectory.points[0].positions[i] = 0.3;
 
 			goal.trajectory.points[0].velocities.resize(7);
 			for (size_t j = 0; j < 7; ++j)

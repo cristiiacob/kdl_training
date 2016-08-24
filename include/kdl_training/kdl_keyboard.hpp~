@@ -14,24 +14,27 @@ namespace kdl_training
 
 		~TFGoal() {}
 			
-	//	void callback(const ros::TimerEvent& e)
-	     //   {
-		//	pub_.publish(tf_goal_);
-		//}
+		//void callback(const ros::TimerEvent& e)
+		void callback()
+	        {	
+			ROS_INFO("Publishing..");
+		//	ros::Duration(5).sleep();
+			pub_.publish(tf_goal_);
+			ROS_INFO("Published");
+		}
 
 	//	void start(const ros::Duration& period)
 		void start()
      		{
         		pub_ = nh_.advertise<geometry_msgs::Pose>("/tf_goal", 1);
-        		//timer_ = nh_.createTimer(period, &TFGoal::callback, this);
-			pub_.publish(tf_goal_);
-			ROS_INFO("Published!");
+        	//	timer_ = nh_.createTimer(period, &TFGoal::callback, this);
+			callback();
       		}
   		
 	    private:	
 		ros::NodeHandle nh_;
       		ros::Publisher pub_;
-      		//ros::Timer timer_;
+      		ros::Timer timer_;
 		geometry_msgs::Pose tf_goal_;
 
 	};	

@@ -40,9 +40,36 @@ class TransformTest : public ::testing::Test
 			if(segment.getJoint().getTypeName().compare("None"))	
 				joint_names.push_back(segment.getJoint().getName());	
 		}
+		
+		joint_initial.resize(8);
+		joint_test.resize(8);
+
+		joint_test(0) = 0.228028;
+		joint_test(1) = -0.967708;
+		joint_test(2) = 0.54159;
+		joint_test(3) = -2.36991;
+		joint_test(4) = -1.15363;
+		joint_test(5) = 6.29081;
+		joint_test(6) = -1.17101;
+		joint_test(7) = 0.753118;
+	
+		for (size_t i = 0; i < q_in.rows(); ++i)
+			joint_initial(i) = 0.0;
+
+	
+		ik_solver = std::make_shared<KDL::ChainIkSolverPos_LMA>(KDL::ChainIkSolverPos_LMA(chain));	
+	    	pose_msg.position.x = 0.360;
+		pose_msg.position.y = -0.260;
+		pose_msg.position.z = 0.498;
+		pose_msg.orientation.x = 0.005;
+		pose_msg.orientation.y = 0.072;
+		pose_msg.orientation.z = 0.725;
+		pose_msg.orientation.w = 0.685;
+
+		tf::poseMsgToKDL(pose_msg, goal_frame);	
 	    }
 
-	    virtual void TearDown()
+            virtual void TearDown()
 	    {
 	      
 	    }
@@ -53,6 +80,14 @@ class TransformTest : public ::testing::Test
 	        urdf::Model urdf;
 		KDL::Tree tree;
 		KDL::Chain chain;
+
+		KDL::JntArray joint_out;	//joint positions form solver
+		KDL::JntArray joint_test;   	//joint test positions from georg
+		KDL::JntArray joint_initial;	//initial positions, set to 0
+		// or set to the same position? 
+		KDL::Frame goal_frame;
+		std::shared_ptr<KDL::ChainIkSolverPos_LMA> ik_solver;	
+		geometry_msgs::Pose pose_msg;
 };
 
 TEST_F(TransformTest, vectorTest)
@@ -66,3 +101,17 @@ TEST_F(TransformTest, nameTest)
 	for (size_t i = 0; i < 8; i++)
 		ASSERT_STREQ(msg.name[2].c_str(), joint_names[2].c_str());	
 }	
+
+TEST_F(TransformTest, ikTest)
+{	
+	joint_out = calculateIK(ik_solver, goal_frame, q_in);
+	//for (size_t i = 0; i < q_out.rows(); ++i)
+		ASSERT_EQ(joint_test(0), joint_out(0));	
+		ASSERT_EQ(joint_test(1), joint_out(1));
+		ASSERT_EQ(joint_test(2), joint_out(2));
+		ASSERT_EQ(joint_test(3), joint_out(3));
+		ASSERT_EQ(joint_test(4), joint_out(4));
+		ASSERT_EQ(joint_test(5), joint_out(5));
+		ASSERT_EQ(joint_test(6), joint_out(6));
+		ASSERT_EQ(joint_test(7), joint_out(7));
+}

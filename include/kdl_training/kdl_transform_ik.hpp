@@ -29,29 +29,32 @@ namespace kdl_training
 				joint_indeces_ = createJointIndices(createIndexMap(msg, joint_names_), joint_names_);
 				once_ = false;
 			}
-		//	q_out_ = calculateIK(ik_solver_, goal_frame_, toKDL(*msg, joint_indeces_));
-		
+		//	q_out_ = calculateIK(ik_solver_, goal_frame_, toKDL(*msg, joint_indeces_));	
 		/*	using KDL::operator<<;
 			ROS_DEBUG_STREAM("IK: " << std::endl << q_out_ << std::endl);
 			for (size_t i = 0; i < q_out_.rows(); ++i)		
 				ROS_INFO("%f",q_out_(i)); 
-		*/
-		
+		*/		
 		}
 
 		void goalCallback(const geometry_msgs::Pose::ConstPtr& msg)
 		{	
+// TODO: print input msg
 			tf::poseMsgToKDL(*msg, goal_frame_);		
 			if(!last_joint_state_.position.empty())
+                        {
 				q_out_ = calculateIK(ik_solver_, goal_frame_, toKDL(last_joint_state_, joint_indeces_));
 				for (size_t i = 0; i < q_out_.rows(); ++i)
 					ROS_INFO("%f", q_out_(i));
 			
-			std_msgs::Float32MultiArray pub_msg;
-			for(int i = 0; i< q_out_.rows(); ++i)
-				pub_msg.data.push_back(q_out_(i));
-	
-			pub_.publish(pub_msg);	
+				std_msgs::Float32MultiArray pub_msg;
+				for(int i = 0; i< q_out_.rows(); ++i)
+					pub_msg.data.push_back(q_out_(i));
+		
+				pub_.publish(pub_msg);	
+                        }
+			else
+				ROS_WARN("Could not process goal because there was not JointStates, yet.");
 		}
 	
 		void createChain(const std::string& robot_desc)
@@ -107,14 +110,8 @@ namespace kdl_training
 		ros::Publisher pub_;
 	//	ros::Timer timer_;	
 		sensor_msgs::JointState last_joint_state_;
-
 		KDL::JntArray q_out_;
 		KDL::Frame goal_frame_;
-		KDL::Vector translation_;
-		KDL::Vector x_rot_;
-		KDL::Vector y_rot_;
-		KDL::Vector z_rot_;
-		KDL::Rotation rotation_;
 	};
 }
 

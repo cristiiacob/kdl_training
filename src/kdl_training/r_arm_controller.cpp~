@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 	kdl_training::RobotRArm my_arm(nh);
 	// Start the trajectory
 	
-	arm.startTrajectory(arm.armExtensionTrajectory(), arm.torsoLift());
+	
 	// Wait for trajectory completion
 
 	try
