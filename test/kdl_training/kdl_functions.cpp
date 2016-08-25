@@ -18,6 +18,16 @@ class TransformTest : public ::testing::Test
 		msg.name.push_back("r_forearm_flex_joint");
 		msg.name.push_back("r_wrist_flex_joint");
 		msg.name.push_back("r_wrist_roll_joint");
+		
+		msg.position.push_back(0.228028);
+		msg.position.push_back(-0.967708);
+		msg.position.push_back(0.54159);
+		msg.position.push_back(-2.36991);
+		msg.position.push_back(-1.15363);
+		msg.position.push_back(6.29081);
+		msg.position.push_back(-1.17101);
+		msg.position.push_back(0.753118);
+
 		indeces.push_back(0);
 		indeces.push_back(2);
 		indeces.push_back(3);
@@ -42,22 +52,22 @@ class TransformTest : public ::testing::Test
 		}
 		
 		joint_initial.resize(8);
-		joint_test.resize(8);
 
-		joint_test(0) = 0.228028;
-		joint_test(1) = -0.967708;
-		joint_test(2) = 0.54159;
-		joint_test(3) = -2.36991;
-		joint_test(4) = -1.15363;
-		joint_test(5) = 6.29081;
-		joint_test(6) = -1.17101;
-		joint_test(7) = 0.753118;
+	//	for (size_t i = 0; i < joint_initial.rows(); ++i)
+	//		joint_initial(i) = 0.0;
 	
-		for (size_t i = 0; i < q_in.rows(); ++i)
-			joint_initial(i) = 0.0;
-
+		joint_initial(0) = 0.228028;
+		joint_initial(1) = -0.967708;
+		joint_initial(2) = 0.54159;
+		joint_initial(3) = -2.36991;
+		joint_initial(4) = -1.15363;
+		joint_initial(5) = 6.29081;
+		joint_initial(6) = -1.17101;
+		joint_initial(7) = 0.753118;
 	
 		ik_solver = std::make_shared<KDL::ChainIkSolverPos_LMA>(KDL::ChainIkSolverPos_LMA(chain));	
+		fk_solver = std::make_shared<KDL::ChainFkSolverPos_recursive>(KDL::ChainFkSolverPos_recursive(chain));
+
 	    	pose_msg.position.x = 0.360;
 		pose_msg.position.y = -0.260;
 		pose_msg.position.z = 0.498;
@@ -82,11 +92,12 @@ class TransformTest : public ::testing::Test
 		KDL::Chain chain;
 
 		KDL::JntArray joint_out;	//joint positions form solver
-		KDL::JntArray joint_test;   	//joint test positions from georg
 		KDL::JntArray joint_initial;	//initial positions, set to 0
 		// or set to the same position? 
-		KDL::Frame goal_frame;
+		KDL::Frame goal_frame;  // goal data from georg --> cartesian
+		KDL::Frame goal_frame_fk; // fk(ik(goal data from georg)) --> cartesian
 		std::shared_ptr<KDL::ChainIkSolverPos_LMA> ik_solver;	
+		std::shared_ptr<KDL::ChainFkSolverPos_recursive> fk_solver;
 		geometry_msgs::Pose pose_msg;
 };
 
@@ -102,16 +113,17 @@ TEST_F(TransformTest, nameTest)
 		ASSERT_STREQ(msg.name[2].c_str(), joint_names[2].c_str());	
 }	
 
-TEST_F(TransformTest, ikTest)
+TEST_F(TransformTest, fkTest)
 {	
-	joint_out = calculateIK(ik_solver, goal_frame, q_in);
-	//for (size_t i = 0; i < q_out.rows(); ++i)
-		ASSERT_EQ(joint_test(0), joint_out(0));	
-		ASSERT_EQ(joint_test(1), joint_out(1));
-		ASSERT_EQ(joint_test(2), joint_out(2));
-		ASSERT_EQ(joint_test(3), joint_out(3));
-		ASSERT_EQ(joint_test(4), joint_out(4));
-		ASSERT_EQ(joint_test(5), joint_out(5));
-		ASSERT_EQ(joint_test(6), joint_out(6));
-		ASSERT_EQ(joint_test(7), joint_out(7));
+	joint_out = calculateIK(ik_solver, goal_frame, joint_initial);
+	goal_frame_fk = calculateFK(fk_solver, joint_out);
+	EXPECT_TRUE(Equal(goal_frame, goal_frame_fk, 0.01));
+	
+	for(size_t i =0; i < 3; ++i)
+	{
+		EXPECT_EQ(goal_frame.p[i], goal_frame_fk.p[i]);
+		for(size_t j = 0; j < 3; ++j)
+			EXPECT_EQ(goal_frame.M(i,j), goal_frame_fk.M(i,j));	
+	}
+	
 }

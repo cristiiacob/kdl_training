@@ -44,13 +44,14 @@ namespace kdl_training
 			if(!last_joint_state_.position.empty())
                         {
 				q_out_ = calculateIK(ik_solver_, goal_frame_, toKDL(last_joint_state_, joint_indeces_));
-				for (size_t i = 0; i < q_out_.rows(); ++i)
-					ROS_INFO("%f", q_out_(i));
 			
 				std_msgs::Float32MultiArray pub_msg;
 				for(int i = 0; i< q_out_.rows(); ++i)
+				{
+					ROS_INFO("%f", q_out_(i));
 					pub_msg.data.push_back(q_out_(i));
-		
+				
+				}
 				pub_.publish(pub_msg);	
                         }
 			else
