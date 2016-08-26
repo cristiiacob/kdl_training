@@ -1,0 +1,27 @@
+<launch>
+  <include file="$(find pr2_description)/robots/upload_pr2.launch" />
+
+  <!-- rosparam command="load" file="$(find kdl_training)/config/pr2_torso_controller.yaml" </rosparam-->
+
+  <!-- rosparam command="load" file="$(find kdl_training)/config/pr2_joint_position_controllers.yaml" </rosparam-->
+
+  <rosparam command="load" file="$(find joint_state_controller)/joint_state_controller.yaml" />
+
+  <rosparam command="load" file="$(find kdl_training)/config/pr2_joint_and_torso_controllers.yaml" />  
+
+  <rosparam command="load" file="$(find kdl_training)/config/pr2_joint_names.yaml" />
+
+  <!--rosparam param="/hardware_interface/joints">["torso_lift_joint"]</rosparam-->
+  <param name="/generic_hw_control_loop/loop_hz" value="50" />
+  <param name="/generic_hw_control_loop/cycle_time_error_threshold" value="0.05" />
+
+  <node pkg="ros_control_boilerplate" type="sim_hw_main" name="sim_hw_main" 
+        output="screen"/>
+
+  <node pkg="controller_manager" type="spawner" name="controller_spawner"
+        output="screen" args="joint_state_controller torso_lift_controller r_shoulder_pan_controller r_shoulder_lift_controller r_upper_arm_roll_controller
+		r_elbow_flex_controller r_forearm_roll_controller r_wrist_flex_controller r_wrist_roll_controller l_shoulder_pan_controller l_shoulder_lift_controller l_upper_arm_roll_controller 
+		l_elbow_flex_controller l_forearm_roll_controller l_wrist_flex_controller l_wrist_roll_controller " />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
+</launch>

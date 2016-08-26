@@ -1,0 +1,243 @@
+torso_lift_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - torso_lift_joint
+  gains:
+    torso_lift_joint:
+      p: 10000000.0
+      d: 1000000.0
+      i: 0.0
+      i_clamp: 0.0
+      i_clamp_max: 0.0
+      i_clamp_min: -0.0
+  position_joint_action_node:
+    joint: torso_lift_joint
+    goal_threshold: 0.01
+
+r_shoulder_pan_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_shoulder_pan_joint
+  gains:
+    r_shoulder_pan_joint:
+    p: 2400.0
+    d: 18.0
+    i: 800.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node: 
+    joint: r_shoulder_pan_joint
+    goal_threshold: 0.01
+
+
+l_shoulder_pan_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_shoulder_pan_joint
+  gains: 
+    l_shoulder_pan_joint:
+    p: 2400.0
+    d: 18.0
+    i: 800.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node: 
+    joint: l_shoulder_pan_joint
+    goal_threshold: 0.01
+
+r_shoulder_lift_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_shoulder_lift_joint
+  gains: 
+    r_shoulder_lift_joint:
+    p: 1200.0
+    d: 10.0
+    i: 700.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node:
+    joint: r_shoulder_lift_joint
+    goal_threshold: 0.01
+
+
+l_shoulder_lift_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_shoulder_lift_joint
+  gains:
+    l_shoulder_lift_joint:
+    p: 1200.0
+    d: 10.0
+    i: 700.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node:
+    joint: l_shoulder_lift_joint
+    goal_threshold: 0.01
+
+r_upper_arm_roll_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_upper_arm_roll_joint
+  gains:
+    r_upper_arm_roll_joint:
+      p: 1000.0
+      d: 6.0
+      i: 600.0
+      i_clamp: 4.0
+      i_clamp_max: 4.0
+      i_clamp_min: -4.0
+  position_joint_action_node:
+    joint: r_upper_arm_roll_joint
+    goal_threshold: 0.01
+
+l_upper_arm_roll_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_upper_arm_roll_joint
+  gains:
+    l_upper_arm_roll_joint:
+    p: 1000.0
+    d: 6.0
+    i: 600.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node:
+    joint: l_upper_arm_roll_joint
+    goal_threshold: 0.01
+
+r_elbow_flex_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_elbow_flex_joint
+  gains:
+    r_elbow_flex_joint:
+    p: 700.0
+    d: 4.0
+    i: 450.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node:
+    joint: r_elbow_flex_joint
+    goal_threshold: 0.01
+
+l_elbow_flex_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_elbow_flex_joint
+  gains:
+   l_elbow_flex_joint:
+    p: 700.0
+    d: 4.0
+    i: 450.0
+    i_clamp: 4.0
+    i_clamp_max: 4.0
+    i_clamp_min: -4.0
+  position_joint_action_node:
+    joint: l_elbow_flex_joint
+    goal_threshold: 0.01
+
+r_forearm_roll_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_forearm_roll_joint
+  gains:
+    r_forearm_roll_joint:
+    p: 300.0
+    d: 6.0
+    i: 300.0
+    i_clamp: 2.0
+    i_clamp_max: 2.0
+    i_clamp_min: -2.0
+  position_joint_action_node:
+    joint: r_forearm_roll_joint
+    goal_threshold: 0.01
+
+l_forearm_roll_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_forearm_roll_joint
+  gains:
+    l_forearm_roll_joint:
+    p: 300.0
+    d: 6.0
+    i: 300.0
+    i_clamp: 2.0
+    i_clamp_max: 2.0
+    i_clamp_min: -2.0
+  position_joint_action_node:
+    joint: l_forearm_roll_joint
+    goal_threshold: 0.01
+
+r_wrist_flex_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_wrist_flex_joint
+  gains:
+    r_wrist_flex_joint:
+    p: 300.0
+    d: 4.0
+    i: 300.0
+    i_clamp: 2.0
+    i_clamp_max: 2.0
+    i_clamp_min: -2.0
+  position_joint_action_node:
+    joint: r_wrist_flex_joint
+    goal_threshold: 0.01
+
+l_wrist_flex_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_wrist_flex_joint
+  gains:
+    l_wrist_flex_joint:
+    p: 300.0
+    d: 4.0
+    i: 300.0
+    i_clamp: 2.0
+    i_clamp_max: 2.0
+    i_clamp_min: -2.0
+  position_joint_action_node:
+    joint: l_wrist_flex_joint
+    goal_threshold: 0.01
+
+r_wrist_roll_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - r_wrist_roll_joint
+  gains:
+    r_wrist_roll_joint:
+    p: 300.0
+    d: 4.0
+    i: 300.0
+    i_clamp: 2.0
+    i_clamp_max: 2.0
+    i_clamp_min: -2.0
+  position_joint_action_node:
+    joint: r_wrist_roll_joint
+    goal_threshold: 0.01
+
+l_wrist_roll_controller:
+  type: position_controllers/JointTrajectoryController
+  joints: 
+    - l_wrist_roll_joint
+  gains:
+    l_wrist_roll_joint:
+    p: 300.0
+    d: 4.0
+    i: 300.0
+    i_clamp: 2.0
+    i_clamp_max: 2.0
+    i_clamp_min: -2.0
+  position_joint_action_node:
+    joint: l_wrist_roll_joint
+    goal_threshold: 0.01
+
+
