@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
    	 try
    	 {
-   	    my_tf_goal.start(ros::Duration(5.0));
+   	    my_tf_goal.start(ros::Duration(10.0));
    	 }
    	 catch(const std::exception& e)
    	 {
