@@ -167,6 +167,9 @@ target_link_libraries(kdl_keyboard ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 add_executable(r_arm_controller src/${PROJECT_NAME}/r_arm_controller.cpp)
 target_link_libraries(r_arm_controller ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
+add_executable(r_arm_test src/${PROJECT_NAME}/r_arm_test.cpp)
+target_link_libraries(r_arm_test ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
