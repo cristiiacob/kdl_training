@@ -21,7 +21,8 @@ int main(int argc, char **argv)
 
    	 try
    	 {
-   	    my_tf_goal.start(ros::Duration(10.0));
+   //	    my_tf_goal.start(ros::Duration(10.0));
+	    my_tf_goal.start();
    	 }
    	 catch(const std::exception& e)
    	 {
@@ -29,8 +30,8 @@ int main(int argc, char **argv)
    	   return 0;
    	 }
 	
-   	// ros::spinOnce();
-	ros::spin();
+        ros::spinOnce();
+	//ros::spin();
 	
    	 return 0;
 }

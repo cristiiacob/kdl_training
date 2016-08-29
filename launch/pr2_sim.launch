@@ -6,8 +6,10 @@
   <!-- rosparam command="load" file="$(find kdl_training)/config/pr2_joint_position_controllers.yaml" </rosparam-->
 
   <rosparam command="load" file="$(find joint_state_controller)/joint_state_controller.yaml" />
+ 
+  <rosparam command="load" file="$(find kdl_training)/config/pr2_controllers.yaml" />
 
-  <rosparam command="load" file="$(find kdl_training)/config/pr2_joint_and_torso_controllers.yaml" />  
+  <!-- rosparam command="load" file="$(find kdl_training)/config/pr2_joint_and_torso_controllers.yaml" </rosparam-->  
 
   <rosparam command="load" file="$(find kdl_training)/config/pr2_joint_names.yaml" />
 
@@ -19,9 +21,7 @@
         output="screen"/>
 
   <node pkg="controller_manager" type="spawner" name="controller_spawner"
-        output="screen" args="joint_state_controller torso_lift_controller r_shoulder_pan_controller r_shoulder_lift_controller r_upper_arm_roll_controller
-		r_elbow_flex_controller r_forearm_roll_controller r_wrist_flex_controller r_wrist_roll_controller l_shoulder_pan_controller l_shoulder_lift_controller l_upper_arm_roll_controller 
-		l_elbow_flex_controller l_forearm_roll_controller l_wrist_flex_controller l_wrist_roll_controller " />
+        output="screen" args="joint_state_controller r_arm_controller l_arm_controller torso_controller" />
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
 </launch>

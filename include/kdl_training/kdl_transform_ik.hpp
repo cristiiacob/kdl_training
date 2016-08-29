@@ -52,7 +52,12 @@ namespace kdl_training
 					pub_msg.data.push_back(q_out_(i));
 				
 				}
+				
+				while(pub_.getNumSubscribers() == 0)
+   					ros::Duration(1).sleep();
+				
 				pub_.publish(pub_msg);	
+				ROS_INFO("Sent!");
                         }
 			else
 				ROS_WARN("Could not process goal because there was not JointStates, yet.");
@@ -102,10 +107,10 @@ namespace kdl_training
 		std::shared_ptr<KDL::ChainIkSolverPos_LMA> ik_solver_;
 		std::string base_frame_;
 		std::string target_frame_;
+		bool once_;
 		KDL::Chain chain_; 
 		std::vector<size_t> joint_indeces_;
-		std::vector<std::string> joint_names_;		
-		bool once_;
+		std::vector<std::string> joint_names_;
 		ros::Subscriber sub_state_;
 		ros::Subscriber sub_goal_;
 		ros::Publisher pub_;
