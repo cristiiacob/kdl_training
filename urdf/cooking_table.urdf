@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<robot name="cooking_table">
+
+ <link name="cooking_table_frame">
+  <visual>
+   <geometry>
+    <!--
+    <mesh>
+      <uri>model://chemlab_table/meshes/chemlab_table.dae</uri>
+    </mesh> 
+    -->
+    <mesh filename="package://kdl_training/meshes/cooking_table/cooking_table.dae"/>
+   </geometry>
+  </visual> 
+ </link>
+
+</robot>

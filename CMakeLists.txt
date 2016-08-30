@@ -179,6 +179,10 @@ target_link_libraries(r_arm_movement_controller ${catkin_LIBRARIES} ${orocos_kdl
 add_executable(shapes src/${PROJECT_NAME}/shapes.cpp)
 target_link_libraries(shapes ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
+add_executable(frame_tf_broadcaster src/${PROJECT_NAME}/frame_tf_broadcaster.cpp)
+target_link_libraries(frame_tf_broadcaster ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

@@ -10,48 +10,81 @@ class Shape
 	~Shape(){}
 
 	
-	visualization_msgs::Marker createShape(const std::string& frame_id, const std::string& namesp, const size_t& id, const size_t& shape, const float& x_pos)
+	visualization_msgs::Marker createBottle(const std::string& frame_id, const std::string& namesp, const size_t& id, const float& red, const float& green, const float& blue)
 	{
 		visualization_msgs::Marker marker;
 		marker.header.frame_id = frame_id;
 		marker.header.stamp = ros::Time();
 		marker.ns = namesp;
 		marker.id = id;
-		marker.type = shape;
+		marker.type = 10;
 		marker.action = visualization_msgs::Marker::ADD;
 
-		marker.pose.position.x = x_pos;
-		marker.pose.position.y = 1;
-		marker.pose.position.z = 1;
+		marker.pose.position.x = 0.9;
+		marker.pose.position.y = -0.4;
+		marker.pose.position.z = 0.6;
 		marker.pose.orientation.x = 0.0;
 		marker.pose.orientation.y = 0.0;
 		marker.pose.orientation.z = 0.0;
 		marker.pose.orientation.w = 0.0;
 
-		marker.scale.x = 0.5;
-		marker.scale.y = 0.5;
-		marker.scale.z = 0.5;
+		marker.scale.x = 1.1;
+		marker.scale.y = 1.1;
+		marker.scale.z = 1.5;
 
-		marker.color.r = 0.0f;
-		marker.color.g = 1.0f;
-		marker.color.b = 0.0f;
+		marker.color.r = red;
+		marker.color.g = green;
+		marker.color.b = blue;
 		marker.color.a = 1.0;
 
-		if(shape == 10)
-			marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
+		marker.mesh_resource = "package://kdl_training/meshes/bottle/bottle.stl";
 
 		marker.lifetime = ros::Duration();
 
 		return marker;
 	}
 
+
+	visualization_msgs::Marker createTable(const std::string& frame_id, const std::string& namesp, const size_t& id)
+	{
+		visualization_msgs::Marker marker;
+		marker.mesh_resource = "package://kdl_training/meshes/chemlab_table/chemlab_table.dae";	
+		marker.header.frame_id = frame_id;
+		marker.header.stamp = ros::Time();
+		marker.ns = namesp;
+		marker.id = id;
+		marker.type = 10;
+		marker.action = visualization_msgs::Marker::ADD;
+
+		marker.pose.position.x = 0.8;
+		marker.pose.position.y = 0;
+		marker.pose.position.z = 0;
+		marker.pose.orientation.x = 0.0;
+		marker.pose.orientation.y = 0.0;
+		marker.pose.orientation.z = 0.0;
+		marker.pose.orientation.w = 0.0;
+
+		marker.scale.x = 0.8;
+		marker.scale.y = 0.8;
+		marker.scale.z = 0.8;
+
+		marker.color.r = 0.38f;
+		marker.color.g = 0.48f;
+		marker.color.b = 0.55f;
+		marker.color.a = 1.0;
+
+		marker.lifetime = ros::Duration();
+
+		return marker;
+	}
+	
 	void start()
 	{
 		pub_ = nh_.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
 		marker_array_.markers.resize(2);
-		marker_array_.markers.push_back(createShape("/my_frame", "shapes", 0, 1, 1.0));
-		marker_array_.markers.push_back(createShape("/my_frame", "shapes", 1, 2, 2.0));
-		marker_array_.markers.push_back(createShape("/my_frame", "shapes", 2, 10, 3.0));
+	//	marker_array_.markers.push_back(createShape("/world", "shapes", 0, 1, 1.0));
+		marker_array_.markers.push_back(createBottle("/map", "shapes", 2, 1.0, 0.7, 0.5));
+		marker_array_.markers.push_back(createTable("/map", "shapes", 1));
 
 		while (pub_.getNumSubscribers() < 1)
 		{
